@@ -1,0 +1,73 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+      Restrained industrial palette: a near-black cool-grey substrate, one cyan
+      data ink, and a warm ramp reserved exclusively for heat and alarm. Colour
+      is information here - nothing is tinted for decoration.
+    -->
+
+    <!-- Substrate -->
+    <Color x:Key="VoidColor">#FF05070A</Color>
+    <Color x:Key="PanelColor">#FF0A0E12</Color>
+    <Color x:Key="PanelDeepColor">#FF070A0D</Color>
+    <Color x:Key="PanelRaisedColor">#FF0E1418</Color>
+
+    <!-- Structure -->
+    <Color x:Key="HairlineColor">#FF141B20</Color>
+    <Color x:Key="EdgeColor">#FF1D272D</Color>
+    <Color x:Key="EdgeStrongColor">#FF2B383F</Color>
+
+    <!-- Type -->
+    <Color x:Key="TextFaintColor">#FF3A474E</Color>
+    <Color x:Key="TextDimColor">#FF5C7078</Color>
+    <Color x:Key="TextMidColor">#FF8DA3AB</Color>
+    <Color x:Key="TextBrightColor">#FFD4E3E8</Color>
+
+    <!-- Data ink -->
+    <Color x:Key="AccentColor">#FF4FC8D4</Color>
+    <Color x:Key="AccentDeepColor">#FF1B4A51</Color>
+    <Color x:Key="AccentFaintColor">#FF122E33</Color>
+
+    <!-- Escalation ramp: calm -> busy -> hot -> alarm -->
+    <Color x:Key="GoodColor">#FF35A08C</Color>
+    <Color x:Key="WarmColor">#FFD9A441</Color>
+    <Color x:Key="HotColor">#FFE0762F</Color>
+    <Color x:Key="AlertColor">#FFE2574A</Color>
+
+    <SolidColorBrush x:Key="VoidBrush" Color="{StaticResource VoidColor}" />
+    <SolidColorBrush x:Key="PanelBrush" Color="{StaticResource PanelColor}" />
+    <SolidColorBrush x:Key="PanelDeepBrush" Color="{StaticResource PanelDeepColor}" />
+    <SolidColorBrush x:Key="PanelRaisedBrush" Color="{StaticResource PanelRaisedColor}" />
+
+    <SolidColorBrush x:Key="HairlineBrush" Color="{StaticResource HairlineColor}" />
+    <SolidColorBrush x:Key="EdgeBrush" Color="{StaticResource EdgeColor}" />
+    <SolidColorBrush x:Key="EdgeStrongBrush" Color="{StaticResource EdgeStrongColor}" />
+
+    <SolidColorBrush x:Key="TextFaintBrush" Color="{StaticResource TextFaintColor}" />
+    <SolidColorBrush x:Key="TextDimBrush" Color="{StaticResource TextDimColor}" />
+    <SolidColorBrush x:Key="TextMidBrush" Color="{StaticResource TextMidColor}" />
+    <SolidColorBrush x:Key="TextBrightBrush" Color="{StaticResource TextBrightColor}" />
+
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentDeepBrush" Color="{StaticResource AccentDeepColor}" />
+    <SolidColorBrush x:Key="AccentFaintBrush" Color="{StaticResource AccentFaintColor}" />
+
+    <SolidColorBrush x:Key="GoodBrush" Color="{StaticResource GoodColor}" />
+    <SolidColorBrush x:Key="WarmBrush" Color="{StaticResource WarmColor}" />
+    <SolidColorBrush x:Key="HotBrush" Color="{StaticResource HotColor}" />
+    <SolidColorBrush x:Key="AlertBrush" Color="{StaticResource AlertColor}" />
+
+    <!-- Translucent variants used for graph fills and lit indicators. -->
+    <SolidColorBrush x:Key="AccentWashBrush" Color="{StaticResource AccentColor}" Opacity="0.13" />
+    <SolidColorBrush x:Key="WarmWashBrush" Color="{StaticResource WarmColor}" Opacity="0.13" />
+    <SolidColorBrush x:Key="AlertWashBrush" Color="{StaticResource AlertColor}" Opacity="0.16" />
+    <SolidColorBrush x:Key="TrackBrush" Color="{StaticResource AccentColor}" Opacity="0.11" />
+
+    <!-- Typography. Labels use the embedded Inter face so the app looks the
+         same on every machine; numerics use a monospace family so digits do
+         not shift horizontally as values change. -->
+    <FontFamily x:Key="LabelFont">avares://Avalonia.Fonts.Inter/Assets#Inter</FontFamily>
+    <FontFamily x:Key="NumericFont">Cascadia Mono,Consolas,Courier New,monospace</FontFamily>
+
+</ResourceDictionary>

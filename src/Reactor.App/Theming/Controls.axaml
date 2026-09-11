@@ -1,0 +1,240 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="clr-namespace:Reactor.App.Controls">
+
+    <Styles.Resources>
+
+        <!-- ================= READOUT =================
+             Caption above, number below, unit riding the baseline. Sizes are
+             selected with a class so every readout of a given rank matches. -->
+        <ControlTheme x:Key="{x:Type c:Readout}" TargetType="c:Readout">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <StackPanel Spacing="1">
+                        <TextBlock Name="PART_Label"
+                                   Text="{TemplateBinding Label}"
+                                   FontFamily="{DynamicResource LabelFont}"
+                                   FontSize="9.5"
+                                   FontWeight="Medium"
+                                   LetterSpacing="1.5"
+                                   Foreground="{DynamicResource TextDimBrush}" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="5">
+                            <TextBlock Name="PART_Value"
+                                       Text="{TemplateBinding Value}"
+                                       FontFamily="{DynamicResource NumericFont}"
+                                       FontSize="27"
+                                       FontWeight="Light"
+                                       LineHeight="32"
+                                       Foreground="{TemplateBinding ValueBrush}" />
+                            <TextBlock Name="PART_Unit"
+                                       Text="{TemplateBinding Unit}"
+                                       FontFamily="{DynamicResource LabelFont}"
+                                       FontSize="10"
+                                       VerticalAlignment="Bottom"
+                                       Margin="0,0,0,5"
+                                       Foreground="{DynamicResource TextDimBrush}" />
+                        </StackPanel>
+
+                        <TextBlock Name="PART_Note"
+                                   Text="{TemplateBinding Note}"
+                                   FontFamily="{DynamicResource LabelFont}"
+                                   FontSize="8.5"
+                                   LetterSpacing="0.8"
+                                   Foreground="{DynamicResource TextFaintBrush}"
+                                   IsVisible="{TemplateBinding Note,
+                                               Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter>
+
+            <!-- Headline numbers: CPU/GPU load, temperature, power. -->
+            <Style Selector="^.large /template/ TextBlock#PART_Value">
+                <Setter Property="FontSize" Value="40" />
+                <Setter Property="LineHeight" Value="45" />
+            </Style>
+            <Style Selector="^.large /template/ TextBlock#PART_Unit">
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+
+            <Style Selector="^.small /template/ TextBlock#PART_Value">
+                <Setter Property="FontSize" Value="19" />
+                <Setter Property="LineHeight" Value="24" />
+            </Style>
+            <Style Selector="^.small /template/ TextBlock#PART_Unit">
+                <Setter Property="FontSize" Value="9" />
+                <Setter Property="Margin" Value="0,0,0,3" />
+            </Style>
+
+            <Style Selector="^.tiny /template/ TextBlock#PART_Value">
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="LineHeight" Value="19" />
+            </Style>
+            <Style Selector="^.tiny /template/ TextBlock#PART_Unit">
+                <Setter Property="FontSize" Value="8.5" />
+                <Setter Property="Margin" Value="0,0,0,2" />
+            </Style>
+            <Style Selector="^.tiny /template/ TextBlock#PART_Label">
+                <Setter Property="FontSize" Value="8.5" />
+            </Style>
+        </ControlTheme>
+
+        <!-- ================= MODULE PANEL ================= -->
+        <ControlTheme x:Key="{x:Type c:ModulePanel}" TargetType="c:ModulePanel">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Panel>
+                        <Border Background="{DynamicResource PanelBrush}"
+                                BorderBrush="{DynamicResource EdgeBrush}"
+                                BorderThickness="1">
+                            <Grid RowDefinitions="Auto,Auto,*">
+                                <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto"
+                                      Margin="14,11,14,9">
+                                    <Rectangle Grid.Column="0" Width="3" Height="12"
+                                               VerticalAlignment="Center"
+                                               Fill="{TemplateBinding Accent}" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{TemplateBinding Designation}"
+                                               Margin="9,0,0,0"
+                                               VerticalAlignment="Center"
+                                               FontFamily="{DynamicResource LabelFont}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               LetterSpacing="3.2"
+                                               Foreground="{DynamicResource TextBrightBrush}" />
+                                    <TextBlock Grid.Column="2"
+                                               Text="{TemplateBinding Subtitle}"
+                                               Margin="16,0,10,0"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Right"
+                                               TextTrimming="CharacterEllipsis"
+                                               FontFamily="{DynamicResource LabelFont}"
+                                               FontSize="10"
+                                               LetterSpacing="0.5"
+                                               Foreground="{DynamicResource TextDimBrush}" />
+                                    <Border Grid.Column="3"
+                                            VerticalAlignment="Center"
+                                            BorderBrush="{DynamicResource EdgeStrongBrush}"
+                                            BorderThickness="1"
+                                            Padding="6,2"
+                                            IsVisible="{TemplateBinding Badge,
+                                                        Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                        <TextBlock Text="{TemplateBinding Badge}"
+                                                   FontFamily="{DynamicResource LabelFont}"
+                                                   FontSize="8.5"
+                                                   LetterSpacing="1.4"
+                                                   Foreground="{DynamicResource TextDimBrush}" />
+                                    </Border>
+                                </Grid>
+
+                                <Rectangle Grid.Row="1" Height="1"
+                                           Fill="{DynamicResource HairlineBrush}" />
+
+                                <ContentPresenter Grid.Row="2"
+                                                  Content="{TemplateBinding Content}"
+                                                  Margin="14,10,14,10" />
+                            </Grid>
+                        </Border>
+
+                        <c:BracketFrame Stroke="{TemplateBinding Accent}"
+                                        TickLength="9"
+                                        Thickness="1" />
+                    </Panel>
+                </ControlTemplate>
+            </Setter>
+        </ControlTheme>
+
+    </Styles.Resources>
+
+    <!-- ================= SHARED TEXT CLASSES ================= -->
+    <Style Selector="TextBlock">
+        <Setter Property="FontFamily" Value="{DynamicResource LabelFont}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextMidBrush}" />
+    </Style>
+
+    <!-- Caption text: small, spaced, always upper case at the source. -->
+    <Style Selector="TextBlock.label">
+        <Setter Property="FontSize" Value="9.5" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="LetterSpacing" Value="1.5" />
+        <Setter Property="Foreground" Value="{DynamicResource TextDimBrush}" />
+    </Style>
+
+    <Style Selector="TextBlock.micro">
+        <Setter Property="FontSize" Value="8.5" />
+        <Setter Property="LetterSpacing" Value="1" />
+        <Setter Property="Foreground" Value="{DynamicResource TextFaintBrush}" />
+    </Style>
+
+    <Style Selector="TextBlock.num">
+        <Setter Property="FontFamily" Value="{DynamicResource NumericFont}" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrightBrush}" />
+    </Style>
+
+    <!-- ================= CHROME BUTTONS ================= -->
+    <Style Selector="Button.chrome">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource EdgeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Padding" Value="10,4" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="FontFamily" Value="{DynamicResource LabelFont}" />
+        <Setter Property="FontSize" Value="9.5" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Foreground" Value="{DynamicResource TextDimBrush}" />
+        <Setter Property="Transitions">
+            <Transitions>
+                <BrushTransition Property="Background" Duration="0:0:0.14" />
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Button.chrome:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentFaintBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource AccentDeepBrush}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource AccentBrush}" />
+    </Style>
+    <Style Selector="Button.chrome:pressed /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AccentDeepBrush}" />
+    </Style>
+
+    <!-- Window buttons: no border, wider hit area, red only on close. -->
+    <Style Selector="Button.window">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Width" Value="34" />
+        <Setter Property="Height" Value="26" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="FontFamily" Value="{DynamicResource LabelFont}" />
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="Foreground" Value="{DynamicResource TextDimBrush}" />
+    </Style>
+    <Style Selector="Button.window:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource PanelRaisedBrush}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource TextBrightBrush}" />
+    </Style>
+    <Style Selector="Button.window.close:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource AlertBrush}" />
+        <Setter Property="TextElement.Foreground" Value="#FF0A0E12" />
+    </Style>
+
+    <!-- ================= INPUTS (settings popup only) ================= -->
+    <Style Selector="TextBox.field">
+        <Setter Property="Background" Value="{DynamicResource PanelDeepBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource EdgeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Padding" Value="8,5" />
+        <Setter Property="MinHeight" Value="0" />
+        <Setter Property="FontFamily" Value="{DynamicResource NumericFont}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource TextBrightBrush}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource AccentDeepBrush}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}" />
+    </Style>
+
+</Styles>

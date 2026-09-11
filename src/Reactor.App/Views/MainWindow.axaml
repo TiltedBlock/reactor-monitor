@@ -1,0 +1,807 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="clr-namespace:Reactor.App.Controls"
+        xmlns:vm="clr-namespace:Reactor.App.ViewModels"
+        xmlns:v="clr-namespace:Reactor.App.Views"
+        x:Class="Reactor.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="REACTOR"
+        Width="1460" Height="920"
+        MinWidth="1180" MinHeight="820"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource VoidBrush}"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        UseLayoutRounding="True"
+        FontFamily="{DynamicResource LabelFont}">
+
+    <Panel Margin="{Binding $parent[Window].OffScreenMargin}">
+
+        <Grid RowDefinitions="Auto,Auto,Auto,*,Auto,Auto">
+
+            <!-- ============================================================
+                 TITLE BAR - custom chrome, draggable
+                 ============================================================ -->
+            <Border Grid.Row="0" Name="TitleBar"
+                    Background="{DynamicResource PanelDeepBrush}"
+                    BorderBrush="{DynamicResource HairlineBrush}"
+                    BorderThickness="0,0,0,1"
+                    Height="42">
+                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto" Margin="14,0,0,0">
+
+                    <Rectangle Grid.Column="0" Width="3" Height="15"
+                               VerticalAlignment="Center"
+                               Fill="{DynamicResource AccentBrush}" />
+
+                    <TextBlock Grid.Column="1" Text="REACTOR"
+                               Margin="10,0,0,0" VerticalAlignment="Center"
+                               FontSize="14" FontWeight="SemiBold" LetterSpacing="6.5"
+                               Foreground="{DynamicResource TextBrightBrush}" />
+
+                    <Rectangle Grid.Column="2" Width="1" Height="16" Margin="18,0,18,0"
+                               VerticalAlignment="Center"
+                               Fill="{DynamicResource EdgeBrush}" />
+
+                    <StackPanel Grid.Column="3" Orientation="Horizontal"
+                                VerticalAlignment="Center" Spacing="8">
+                        <TextBlock Text="HOST" Classes="label" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding HostName}" Classes="num"
+                                   FontSize="11.5" LetterSpacing="1.2" VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- Right-hand controls -->
+                    <StackPanel Grid.Column="5" Orientation="Horizontal"
+                                VerticalAlignment="Center" Spacing="7" Margin="0,0,10,0">
+
+                        <Border BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1"
+                                Padding="7,3" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <Ellipse Width="5" Height="5" VerticalAlignment="Center"
+                                         Fill="{Binding IsElevated,
+                                                Converter={x:Static v:Converters.BoolToAccentOrWarm}}" />
+                                <TextBlock Classes="micro" VerticalAlignment="Center"
+                                           Text="{Binding IsElevated,
+                                                  Converter={x:Static v:Converters.BoolToPrivilege}}" />
+                            </StackPanel>
+                        </Border>
+
+                        <Button Classes="chrome" Content="DIAG"
+                                Command="{Binding ToggleDiagnosticsCommand}" />
+                        <Button Classes="chrome" Content="CFG"
+                                Command="{Binding ToggleSettingsCommand}" />
+                        <Button Classes="chrome" Content="RESET"
+                                Command="{Binding ResetSessionCommand}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Stretch">
+                        <Button Classes="window" Name="MinimizeButton" Content="&#x2013;" />
+                        <Button Classes="window" Name="MaximizeButton" Content="&#x25A1;" />
+                        <Button Classes="window close" Name="CloseButton" Content="&#x2715;" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ============================================================
+                 STATUS BAND
+                 ============================================================ -->
+            <Border Grid.Row="1"
+                    Background="{DynamicResource PanelBrush}"
+                    BorderBrush="{DynamicResource HairlineBrush}"
+                    BorderThickness="0,0,0,1"
+                    Height="52">
+                <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" Margin="14,0">
+
+                    <Rectangle Grid.Column="0" Width="9" Height="9"
+                               VerticalAlignment="Center"
+                               Fill="{Binding StatusBrush}" />
+
+                    <TextBlock Grid.Column="1" Text="{Binding StatusLabel}"
+                               Margin="12,0,0,0" VerticalAlignment="Center"
+                               FontSize="19" FontWeight="SemiBold" LetterSpacing="4.5"
+                               Foreground="{Binding StatusBrush}" />
+
+                    <Rectangle Grid.Column="2" Width="1" Height="18" Margin="18,0"
+                               VerticalAlignment="Center"
+                               Fill="{DynamicResource EdgeBrush}" />
+
+                    <TextBlock Grid.Column="3" Text="{Binding StatusDetail}"
+                               VerticalAlignment="Center"
+                               FontSize="11" LetterSpacing="1.4"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource TextDimBrush}" />
+
+                    <StackPanel Grid.Column="4" Orientation="Horizontal"
+                                VerticalAlignment="Center" Spacing="16">
+                        <StackPanel Orientation="Horizontal" Spacing="7">
+                            <TextBlock Text="SESSION" Classes="label" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding SessionTime}" Classes="num"
+                                       FontSize="13" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <Rectangle Width="1" Height="14" Fill="{DynamicResource EdgeBrush}" />
+                        <StackPanel Orientation="Horizontal" Spacing="7">
+                            <TextBlock Text="SAMPLES" Classes="label" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding SampleCount}" Classes="num"
+                                       FontSize="13" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <Rectangle Width="1" Height="14" Fill="{DynamicResource EdgeBrush}" />
+                        <TextBlock Text="{Binding IntervalLabel}" Classes="micro" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding UnresolvedSummary}" Classes="micro" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ============================================================
+                 LIMITED TELEMETRY NOTICE - only when the CPU driver is out of
+                 reach, which is the single most likely thing to confuse a user
+                 ============================================================ -->
+            <Border Grid.Row="2"
+                    IsVisible="{Binding IsTelemetryLimited}"
+                    Background="{DynamicResource WarmWashBrush}"
+                    BorderBrush="{DynamicResource HairlineBrush}"
+                    BorderThickness="0,0,0,1"
+                    Padding="14,7">
+                <Grid ColumnDefinitions="Auto,Auto,*,Auto">
+                    <TextBlock Grid.Column="0" Text="&#x25B2;" VerticalAlignment="Center"
+                               FontSize="9" Foreground="{DynamicResource WarmBrush}" />
+                    <TextBlock Grid.Column="1" Text="LIMITED TELEMETRY"
+                               Margin="10,0,0,0" VerticalAlignment="Center"
+                               FontSize="10" FontWeight="SemiBold" LetterSpacing="2"
+                               Foreground="{DynamicResource WarmBrush}" />
+                    <TextBlock Grid.Column="2" Text="{Binding LimitedMessage}"
+                               Margin="16,0,0,0" VerticalAlignment="Center"
+                               Classes="micro" />
+                    <Button Grid.Column="3" Classes="chrome" Content="RESTART ELEVATED"
+                            IsVisible="{Binding IsElevationActionable}"
+                            Command="{Binding ElevateCommand}" />
+                </Grid>
+            </Border>
+
+            <!-- ============================================================
+                 MAIN AREA - CPU left, GPU right
+                 ============================================================ -->
+            <Grid Grid.Row="3" ColumnDefinitions="*,10,*" Margin="10,10,10,0">
+
+                <!-- CPU MODULE -->
+                <c:ModulePanel Grid.Column="0"
+                               Designation="CPU"
+                               Subtitle="{Binding Cpu.Subtitle}"
+                               Badge="{Binding Cpu.Badge}"
+                               Accent="{DynamicResource AccentBrush}">
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
+
+                        <!-- headline readouts + gauges -->
+                        <Grid Grid.Row="0" ColumnDefinitions="*,1,*,1,*">
+                            <StackPanel Grid.Column="0" Spacing="9">
+                                <c:Readout Classes="large" Label="LOAD" Unit="%"
+                                           Value="{Binding Cpu.LoadValue}"
+                                           ValueBrush="{Binding Cpu.LoadBrush}" />
+                                <c:SegmentBar Height="7" Segments="36"
+                                              Value="{Binding Cpu.LoadRatio}"
+                                              IsAvailable="{Binding Cpu.LoadAvailable}"
+                                              Foreground="{DynamicResource AccentBrush}"
+                                              Track="{DynamicResource TrackBrush}" />
+                            </StackPanel>
+
+                            <Rectangle Grid.Column="1" Width="1" Margin="0,2,0,10"
+                                       Fill="{DynamicResource HairlineBrush}" />
+
+                            <StackPanel Grid.Column="2" Margin="16,0,0,0" Spacing="9">
+                                <c:Readout Classes="large" Label="PACKAGE TEMP"
+                                           Unit="{Binding Cpu.TempUnit}"
+                                           Value="{Binding Cpu.TempValue}"
+                                           ValueBrush="{Binding Cpu.TempBrush}" />
+                                <c:SegmentBar Height="7" Segments="36"
+                                              Minimum="20" Maximum="100"
+                                              Value="{Binding Cpu.TempRatio}"
+                                              Marker="{Binding Cpu.TempPeakMarker}"
+                                              IsAvailable="{Binding Cpu.TempAvailable}"
+                                              Foreground="{Binding Cpu.TempBrush}"
+                                              Track="{DynamicResource TrackBrush}" />
+                            </StackPanel>
+
+                            <Rectangle Grid.Column="3" Width="1" Margin="0,2,0,10"
+                                       Fill="{DynamicResource HairlineBrush}" />
+
+                            <StackPanel Grid.Column="4" Margin="16,0,0,0" Spacing="9">
+                                <c:Readout Classes="large" Label="PACKAGE POWER" Unit="W"
+                                           Value="{Binding Cpu.PowerValue}"
+                                           ValueBrush="{Binding Cpu.PowerBrush}"
+                                           Note="{Binding Cpu.PowerNote}" />
+                                <c:SegmentBar Height="7" Segments="36"
+                                              Maximum="{Binding Cpu.PowerScale}"
+                                              Value="{Binding Cpu.PowerRatio}"
+                                              IsAvailable="{Binding Cpu.PowerAvailable}"
+                                              Foreground="{DynamicResource AccentBrush}"
+                                              Track="{DynamicResource TrackBrush}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Rectangle Grid.Row="1" Height="1" Margin="0,13,0,11"
+                                   Fill="{DynamicResource HairlineBrush}" />
+
+                        <!-- secondary readouts -->
+                        <Grid Grid.Row="2" ColumnDefinitions="*,*,*">
+                            <c:Readout Grid.Column="0" Classes="small"
+                                       Label="CORE CLOCK"
+                                       Unit="{Binding Cpu.ClockUnit}"
+                                       Value="{Binding Cpu.ClockValue}"
+                                       ValueBrush="{Binding Cpu.ClockBrush}"
+                                       Note="FASTEST CORE" />
+                            <c:Readout Grid.Column="1" Classes="small"
+                                       Label="HOTTEST CORE"
+                                       Unit="{Binding Cpu.TempUnit}"
+                                       Value="{Binding Cpu.HotCoreValue}"
+                                       ValueBrush="{Binding Cpu.HotCoreBrush}"
+                                       Note="{Binding Cpu.HotCoreNote}" />
+                            <c:Readout Grid.Column="2" Classes="small"
+                                       Label="BUSIEST CORE" Unit="%"
+                                       Value="{Binding Cpu.MaxCoreLoadValue}"
+                                       ValueBrush="{Binding Cpu.MaxCoreLoadBrush}"
+                                       Note="{Binding Cpu.MaxCoreLoadNote}" />
+                        </Grid>
+
+                        <!-- per-core activity -->
+                        <StackPanel Grid.Row="3" Margin="0,13,0,0" Spacing="6"
+                                    IsVisible="{Binding Cpu.HasCoreLoads}">
+                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                <TextBlock Grid.Column="0" Text="CORE ACTIVITY" Classes="label" />
+                                <TextBlock Grid.Column="2" Text="{Binding Cpu.ThreadLabel}" Classes="micro" />
+                            </Grid>
+                            <c:CoreActivityStrip Height="30" Rows="6"
+                                                 Values="{Binding Cpu.CoreLoads}"
+                                                 Foreground="{DynamicResource AccentBrush}"
+                                                 Track="{DynamicResource TrackBrush}" />
+                        </StackPanel>
+
+                        <!-- history -->
+                        <!-- Legend and plot share one frame so the key stays
+                             attached to the trace. The plot takes whatever
+                             height is left; the cap only matters on unusually
+                             tall displays. -->
+                        <Border Grid.Row="4" Margin="0,14,0,0"
+                                MinHeight="70" MaxHeight="420"
+                                Background="{DynamicResource PanelDeepBrush}"
+                                BorderBrush="{DynamicResource HairlineBrush}"
+                                BorderThickness="1">
+                            <Grid RowDefinitions="Auto,Auto,*">
+                                <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto" Margin="9,6,9,6">
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+                                        <Rectangle Width="9" Height="2" VerticalAlignment="Center"
+                                                   Fill="{DynamicResource AccentBrush}" />
+                                        <TextBlock Text="LOAD %" Classes="micro" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="16,0,0,0">
+                                        <Rectangle Width="9" Height="2" VerticalAlignment="Center"
+                                                   Fill="{DynamicResource WarmBrush}" />
+                                        <TextBlock Text="TEMP 20-100 °C" Classes="micro" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="3" Text="HISTORY" Classes="micro" />
+                                </Grid>
+
+                                <Rectangle Grid.Row="1" Height="1" Fill="{DynamicResource HairlineBrush}" />
+
+                                <c:TelemetryGraph Grid.Row="2" Margin="0,0,0,0"
+                                                  Capacity="{Binding Cpu.HistoryCapacity}"
+                                                  Primary="{Binding Cpu.LoadHistory}"
+                                                  PrimaryMinimum="0" PrimaryMaximum="100"
+                                                  Secondary="{Binding Cpu.TempHistory}"
+                                                  SecondaryMinimum="20" SecondaryMaximum="100"
+                                                  PrimaryStroke="{DynamicResource AccentBrush}"
+                                                  PrimaryFill="{DynamicResource AccentWashBrush}"
+                                                  SecondaryStroke="{DynamicResource WarmBrush}"
+                                                  GridBrush="{DynamicResource HairlineBrush}"
+                                                  ScaleUnit="%"
+                                                  ScaleBrush="{DynamicResource TextFaintBrush}"
+                                                  ScaleFontFamily="{DynamicResource NumericFont}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </c:ModulePanel>
+
+                <!-- GPU MODULE -->
+                <c:ModulePanel Grid.Column="2"
+                               Designation="GPU"
+                               Subtitle="{Binding Gpu.Subtitle}"
+                               Badge="{Binding Gpu.Badge}"
+                               Accent="{DynamicResource AccentBrush}">
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
+
+                        <Grid Grid.Row="0" ColumnDefinitions="*,1,*,1,*">
+                            <StackPanel Grid.Column="0" Spacing="9">
+                                <c:Readout Classes="large" Label="LOAD" Unit="%"
+                                           Value="{Binding Gpu.LoadValue}"
+                                           ValueBrush="{Binding Gpu.LoadBrush}" />
+                                <c:SegmentBar Height="7" Segments="36"
+                                              Value="{Binding Gpu.LoadRatio}"
+                                              IsAvailable="{Binding Gpu.LoadAvailable}"
+                                              Foreground="{DynamicResource AccentBrush}"
+                                              Track="{DynamicResource TrackBrush}" />
+                            </StackPanel>
+
+                            <Rectangle Grid.Column="1" Width="1" Margin="0,2,0,10"
+                                       Fill="{DynamicResource HairlineBrush}" />
+
+                            <StackPanel Grid.Column="2" Margin="16,0,0,0" Spacing="9">
+                                <c:Readout Classes="large" Label="CORE TEMP"
+                                           Unit="{Binding Gpu.TempUnit}"
+                                           Value="{Binding Gpu.TempValue}"
+                                           ValueBrush="{Binding Gpu.TempBrush}" />
+                                <c:SegmentBar Height="7" Segments="36"
+                                              Minimum="20" Maximum="100"
+                                              Value="{Binding Gpu.TempRatio}"
+                                              Marker="{Binding Gpu.TempPeakMarker}"
+                                              IsAvailable="{Binding Gpu.TempAvailable}"
+                                              Foreground="{Binding Gpu.TempBrush}"
+                                              Track="{DynamicResource TrackBrush}" />
+                            </StackPanel>
+
+                            <Rectangle Grid.Column="3" Width="1" Margin="0,2,0,10"
+                                       Fill="{DynamicResource HairlineBrush}" />
+
+                            <StackPanel Grid.Column="4" Margin="16,0,0,0" Spacing="9">
+                                <c:Readout Classes="large" Label="BOARD POWER" Unit="W"
+                                           Value="{Binding Gpu.PowerValue}"
+                                           ValueBrush="{Binding Gpu.PowerBrush}"
+                                           Note="{Binding Gpu.PowerNote}" />
+                                <c:SegmentBar Height="7" Segments="36"
+                                              Minimum="0" Maximum="100"
+                                              Value="{Binding Gpu.PowerRatio}"
+                                              IsAvailable="{Binding Gpu.PowerBudgetAvailable}"
+                                              Foreground="{DynamicResource AccentBrush}"
+                                              Track="{DynamicResource TrackBrush}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Rectangle Grid.Row="1" Height="1" Margin="0,13,0,11"
+                                   Fill="{DynamicResource HairlineBrush}" />
+
+                        <Grid Grid.Row="2" ColumnDefinitions="*,*,*,*">
+                            <c:Readout Grid.Column="0" Classes="small"
+                                       Label="HOTSPOT"
+                                       Unit="{Binding Gpu.TempUnit}"
+                                       Value="{Binding Gpu.HotspotValue}"
+                                       ValueBrush="{Binding Gpu.HotspotBrush}"
+                                       Note="{Binding Gpu.HotspotNote}" />
+                            <c:Readout Grid.Column="1" Classes="small"
+                                       Label="MEMORY JUNCTION"
+                                       Unit="{Binding Gpu.TempUnit}"
+                                       Value="{Binding Gpu.VramTempValue}"
+                                       ValueBrush="{Binding Gpu.VramTempBrush}" />
+                            <c:Readout Grid.Column="2" Classes="small"
+                                       Label="CORE CLOCK"
+                                       Unit="{Binding Gpu.ClockUnit}"
+                                       Value="{Binding Gpu.ClockValue}"
+                                       ValueBrush="{Binding Gpu.ClockBrush}" />
+                            <c:Readout Grid.Column="3" Classes="small"
+                                       Label="FAN"
+                                       Unit="{Binding Gpu.FanUnit}"
+                                       Value="{Binding Gpu.FanValue}"
+                                       ValueBrush="{Binding Gpu.FanBrush}"
+                                       Note="{Binding Gpu.FanNote}" />
+                        </Grid>
+
+                        <!-- VRAM -->
+                        <StackPanel Grid.Row="3" Margin="0,13,0,0" Spacing="6">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                <TextBlock Grid.Column="0" Text="VIDEO MEMORY" Classes="label" />
+                                <TextBlock Grid.Column="2" Text="{Binding Gpu.VramSummary}"
+                                           Classes="num" FontSize="11" Margin="0,0,10,0"
+                                           Foreground="{Binding Gpu.VramBrush}" />
+                                <TextBlock Grid.Column="3" Text="{Binding Gpu.VramPercentText}"
+                                           Classes="micro" VerticalAlignment="Bottom" />
+                            </Grid>
+                            <c:SegmentBar Height="9" Segments="48"
+                                          Value="{Binding Gpu.VramRatio}"
+                                          IsAvailable="{Binding Gpu.VramAvailable}"
+                                          Foreground="{DynamicResource AccentBrush}"
+                                          Track="{DynamicResource TrackBrush}" />
+                        </StackPanel>
+
+                        <!-- Legend and plot share one frame so the key stays
+                             attached to the trace. The plot takes whatever
+                             height is left; the cap only matters on unusually
+                             tall displays. -->
+                        <Border Grid.Row="4" Margin="0,14,0,0"
+                                MinHeight="70" MaxHeight="420"
+                                Background="{DynamicResource PanelDeepBrush}"
+                                BorderBrush="{DynamicResource HairlineBrush}"
+                                BorderThickness="1">
+                            <Grid RowDefinitions="Auto,Auto,*">
+                                <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,*,Auto" Margin="9,6,9,6">
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6">
+                                        <Rectangle Width="9" Height="2" VerticalAlignment="Center"
+                                                   Fill="{DynamicResource AccentBrush}" />
+                                        <TextBlock Text="LOAD %" Classes="micro" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="16,0,0,0">
+                                        <Rectangle Width="9" Height="2" VerticalAlignment="Center"
+                                                   Fill="{DynamicResource WarmBrush}" />
+                                        <TextBlock Text="TEMP 20-100 °C" Classes="micro" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="3" Text="HISTORY" Classes="micro" />
+                                </Grid>
+
+                                <Rectangle Grid.Row="1" Height="1" Fill="{DynamicResource HairlineBrush}" />
+
+                                <c:TelemetryGraph Grid.Row="2" Margin="0,0,0,0"
+                                                  Capacity="{Binding Gpu.HistoryCapacity}"
+                                                  Primary="{Binding Gpu.LoadHistory}"
+                                                  PrimaryMinimum="0" PrimaryMaximum="100"
+                                                  Secondary="{Binding Gpu.TempHistory}"
+                                                  SecondaryMinimum="20" SecondaryMaximum="100"
+                                                  PrimaryStroke="{DynamicResource AccentBrush}"
+                                                  PrimaryFill="{DynamicResource AccentWashBrush}"
+                                                  SecondaryStroke="{DynamicResource WarmBrush}"
+                                                  GridBrush="{DynamicResource HairlineBrush}"
+                                                  ScaleUnit="%"
+                                                  ScaleBrush="{DynamicResource TextFaintBrush}"
+                                                  ScaleFontFamily="{DynamicResource NumericFont}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </c:ModulePanel>
+            </Grid>
+
+            <!-- ============================================================
+                 POWER / THERMAL BAND
+                 ============================================================ -->
+            <c:ModulePanel Grid.Row="4" Margin="10,10,10,0"
+                           Designation="POWER"
+                           Subtitle="{Binding System.PowerHistoryCaption}"
+                           Accent="{DynamicResource AccentBrush}">
+                <Grid ColumnDefinitions="Auto,1,Auto,1,Auto,1,*" Height="76">
+
+                    <c:Readout Grid.Column="0" Classes="large" Width="150"
+                               Label="PACKAGE DRAW" Unit="W"
+                               Value="{Binding System.ComponentPowerValue}"
+                               ValueBrush="{Binding System.ComponentPowerBrush}"
+                               Note="{Binding System.ComponentPowerNote}"
+                               VerticalAlignment="Center" />
+
+                    <Rectangle Grid.Column="1" Width="1" Fill="{DynamicResource HairlineBrush}" />
+
+                    <c:Readout Grid.Column="2" Classes="large" Width="150" Margin="18,0,0,0"
+                               Label="SYSTEM DRAW" Unit="W"
+                               Value="{Binding System.WallPowerValue}"
+                               ValueBrush="{Binding System.WallPowerBrush}"
+                               Note="{Binding System.WallPowerNote}"
+                               VerticalAlignment="Center" />
+
+                    <Rectangle Grid.Column="3" Width="1" Margin="18,0,0,0"
+                               Fill="{DynamicResource HairlineBrush}" />
+
+                    <c:Readout Grid.Column="4" Classes="large" Width="165" Margin="18,0,0,0"
+                               Label="HEAT OUTPUT" Unit="BTU/H"
+                               Value="{Binding System.HeatValue}"
+                               ValueBrush="{DynamicResource TextBrightBrush}"
+                               Note="{Binding System.HeatNote}"
+                               VerticalAlignment="Center" />
+
+                    <Rectangle Grid.Column="5" Width="1" Margin="18,0,0,0"
+                               Fill="{DynamicResource HairlineBrush}" />
+
+                    <Border Grid.Column="6" Margin="18,4,0,4"
+                            Background="{DynamicResource PanelDeepBrush}"
+                            BorderBrush="{DynamicResource HairlineBrush}"
+                            BorderThickness="1">
+                        <c:TelemetryGraph Margin="1"
+                                          Capacity="{Binding System.HistoryCapacity}"
+                                          Primary="{Binding System.PowerHistory}"
+                                          PrimaryMinimum="0" PrimaryMaximum="50"
+                                          AutoScalePrimary="True"
+                                          GridRows="3" GridColumns="12"
+                                          PrimaryStroke="{DynamicResource AccentBrush}"
+                                          PrimaryFill="{DynamicResource AccentWashBrush}"
+                                          GridBrush="{DynamicResource HairlineBrush}"
+                                          ScaleUnit="W"
+                                          ScaleBrush="{DynamicResource TextFaintBrush}"
+                                          ScaleFontFamily="{DynamicResource NumericFont}" />
+                    </Border>
+                </Grid>
+            </c:ModulePanel>
+
+            <!-- ============================================================
+                 SYSTEM BAND
+                 ============================================================ -->
+            <c:ModulePanel Grid.Row="5" Margin="10,10,10,10"
+                           Designation="SYSTEM"
+                           Subtitle="MEMORY · STORAGE · NETWORK · SESSION ACCUMULATORS"
+                           Accent="{DynamicResource AccentBrush}">
+                <Grid ColumnDefinitions="1.35*,1,*,1,*,1,*,1,*,1,*,1,1.15*">
+
+                    <!-- memory -->
+                    <StackPanel Grid.Column="0" Spacing="8">
+                        <c:Readout Classes="small" Label="MEMORY IN USE" Unit="GB"
+                                   Value="{Binding System.MemoryValue}"
+                                   ValueBrush="{Binding System.MemoryBrush}"
+                                   Note="{Binding System.MemoryNote}" />
+                        <c:SegmentBar Height="7" Segments="30" Margin="0,0,16,0"
+                                      Value="{Binding System.MemoryRatio}"
+                                      IsAvailable="{Binding System.MemoryAvailable}"
+                                      Foreground="{DynamicResource AccentBrush}"
+                                      Track="{DynamicResource TrackBrush}" />
+                    </StackPanel>
+
+                    <Rectangle Grid.Column="1" Width="1" Fill="{DynamicResource HairlineBrush}" />
+
+                    <c:Readout Grid.Column="2" Classes="small" Margin="16,0,0,0"
+                               Label="DRIVE TEMP"
+                               Unit="{Binding System.StorageUnit}"
+                               Value="{Binding System.StorageValue}"
+                               ValueBrush="{Binding System.StorageBrush}"
+                               Note="{Binding System.StorageNote}" />
+
+                    <Rectangle Grid.Column="3" Width="1" Margin="16,0,0,0"
+                               Fill="{DynamicResource HairlineBrush}" />
+
+                    <StackPanel Grid.Column="4" Margin="16,0,0,0" Spacing="4">
+                        <c:Readout Classes="tiny" Label="NET DOWN"
+                                   Unit="{Binding System.NetDownUnit}"
+                                   Value="{Binding System.NetDownValue}"
+                                   ValueBrush="{Binding System.NetBrush}" />
+                        <c:Readout Classes="tiny" Label="NET UP"
+                                   Unit="{Binding System.NetUpUnit}"
+                                   Value="{Binding System.NetUpValue}"
+                                   ValueBrush="{Binding System.NetBrush}" />
+                    </StackPanel>
+
+                    <Rectangle Grid.Column="5" Width="1" Margin="16,0,0,0"
+                               Fill="{DynamicResource HairlineBrush}" />
+
+                    <c:Readout Grid.Column="6" Classes="small" Margin="16,0,0,0"
+                               Label="SESSION ENERGY"
+                               Unit="{Binding System.EnergyUnit}"
+                               Value="{Binding System.EnergyValue}"
+                               ValueBrush="{DynamicResource TextBrightBrush}"
+                               Note="{Binding System.EnergyNote}" />
+
+                    <Rectangle Grid.Column="7" Width="1" Margin="16,0,0,0"
+                               Fill="{DynamicResource HairlineBrush}" />
+
+                    <c:Readout Grid.Column="8" Classes="small" Margin="16,0,0,0"
+                               Label="SESSION COST"
+                               Unit="{Binding System.CostUnit}"
+                               Value="{Binding System.CostValue}"
+                               ValueBrush="{DynamicResource TextBrightBrush}"
+                               Note="{Binding System.CostNote}" />
+
+                    <Rectangle Grid.Column="9" Width="1" Margin="16,0,0,0"
+                               Fill="{DynamicResource HairlineBrush}" />
+
+                    <StackPanel Grid.Column="10" Margin="16,0,0,0" Spacing="4">
+                        <c:Readout Classes="tiny" Label="COST RATE"
+                                   Unit="{Binding System.CostRateUnit}"
+                                   Value="{Binding System.CostRateValue}"
+                                   ValueBrush="{DynamicResource TextMidBrush}" />
+                        <c:Readout Classes="tiny" Label="AVG DRAW" Unit="W"
+                                   Value="{Binding System.AvgDrawValue}"
+                                   ValueBrush="{DynamicResource TextMidBrush}" />
+                    </StackPanel>
+
+                    <Rectangle Grid.Column="11" Width="1" Margin="16,0,0,0"
+                               Fill="{DynamicResource HairlineBrush}" />
+
+                    <!-- session peaks -->
+                    <StackPanel Grid.Column="12" Margin="16,0,0,0" Spacing="5">
+                        <TextBlock Text="SESSION PEAKS" Classes="label" />
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto">
+                            <c:Readout Grid.Row="0" Grid.Column="0" Classes="tiny" Label="CPU"
+                                       Margin="0,0,10,4"
+                                       Unit="{Binding System.TempUnit}"
+                                       Value="{Binding System.PeakCpuValue}"
+                                       ValueBrush="{Binding System.PeakCpuBrush}" />
+                            <c:Readout Grid.Row="0" Grid.Column="1" Classes="tiny" Label="GPU"
+                                       Margin="0,0,0,4"
+                                       Unit="{Binding System.TempUnit}"
+                                       Value="{Binding System.PeakGpuValue}"
+                                       ValueBrush="{Binding System.PeakGpuBrush}" />
+                            <c:Readout Grid.Row="1" Grid.Column="0" Classes="tiny" Label="HOTSPOT"
+                                       Margin="0,0,10,0"
+                                       Unit="{Binding System.TempUnit}"
+                                       Value="{Binding System.PeakHotspotValue}"
+                                       ValueBrush="{Binding System.PeakHotspotBrush}" />
+                            <c:Readout Grid.Row="1" Grid.Column="1" Classes="tiny" Label="PKG DRAW" Unit="W"
+                                       Value="{Binding System.PeakPowerValue}"
+                                       ValueBrush="{Binding System.PeakPowerBrush}" />
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </c:ModulePanel>
+        </Grid>
+
+        <!-- ============================================================
+             SETTINGS OVERLAY
+             ============================================================ -->
+        <Border IsVisible="{Binding IsSettingsOpen}"
+                HorizontalAlignment="Right" VerticalAlignment="Top"
+                Margin="0,52,14,0" Width="330"
+                Background="{DynamicResource PanelRaisedBrush}"
+                BorderBrush="{DynamicResource EdgeStrongBrush}"
+                BorderThickness="1"
+                BoxShadow="0 12 40 0 #E0000000">
+            <StackPanel Margin="16" Spacing="13">
+                <TextBlock Text="CONFIGURATION" FontSize="11" FontWeight="SemiBold"
+                           LetterSpacing="3" Foreground="{DynamicResource TextBrightBrush}" />
+                <Rectangle Height="1" Fill="{DynamicResource HairlineBrush}" />
+
+                <StackPanel Spacing="5">
+                    <TextBlock Text="ELECTRICITY PRICE / kWh" Classes="label" />
+                    <TextBox Classes="field" Text="{Binding PriceText, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="5">
+                    <TextBlock Text="POLL INTERVAL (MS)" Classes="label" />
+                    <TextBox Classes="field" Text="{Binding IntervalText, Mode=TwoWay}" />
+                </StackPanel>
+
+                <StackPanel Spacing="5">
+                    <TextBlock Text="HISTORY WINDOW (S)" Classes="label" />
+                    <TextBox Classes="field" Text="{Binding HistoryText, Mode=TwoWay}" />
+                </StackPanel>
+
+                <CheckBox Content="FAHRENHEIT" FontSize="10"
+                          IsChecked="{Binding UseFahrenheit, Mode=TwoWay}" />
+
+                <TextBlock Text="{Binding SettingsHint}" Classes="micro" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding ConfigPath}" Classes="micro" TextWrapping="Wrap" />
+
+                <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                    <Button Classes="chrome" Content="CLOSE"
+                            Command="{Binding ToggleSettingsCommand}" />
+                    <Button Classes="chrome" Content="SAVE"
+                            Command="{Binding ApplySettingsCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- ============================================================
+             DIAGNOSTICS OVERLAY - utilitarian on purpose
+             ============================================================ -->
+        <Border IsVisible="{Binding IsDiagnosticsOpen}"
+                Background="{DynamicResource VoidBrush}"
+                Margin="0,42,0,0">
+            <Grid Margin="18" RowDefinitions="Auto,Auto,*">
+                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto" Margin="0,0,0,10">
+                    <TextBlock Grid.Column="0" Text="SENSOR DIAGNOSTICS"
+                               FontSize="13" FontWeight="SemiBold" LetterSpacing="3.5"
+                               Foreground="{DynamicResource TextBrightBrush}"
+                               VerticalAlignment="Center" />
+                    <TextBlock Grid.Column="1" Text="{Binding Diagnostics.Summary}"
+                               Classes="micro" Margin="18,0,0,0" VerticalAlignment="Center" />
+                    <Button Grid.Column="2" Classes="chrome" Content="REFRESH" Margin="0,0,8,0"
+                            Command="{Binding RefreshDiagnosticsCommand}" />
+                    <Button Grid.Column="3" Classes="chrome" Content="CLOSE"
+                            Command="{Binding ToggleDiagnosticsCommand}" />
+                </Grid>
+
+                <StackPanel Grid.Row="1" Spacing="8" Margin="0,0,0,10">
+                    <Border Padding="12,8"
+                            Background="{DynamicResource PanelBrush}"
+                            BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1"
+                            IsVisible="{Binding Diagnostics.HasUnresolved}">
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="UNMAPPED METRICS - NO SENSOR ON THIS MACHINE" Classes="label"
+                                       Foreground="{DynamicResource WarmBrush}" />
+                            <ItemsControl ItemsSource="{Binding Diagnostics.Unresolved}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="x:String">
+                                        <TextBlock Text="{Binding}" Classes="micro" Margin="0,0,22,0" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Padding="12,8"
+                            Background="{DynamicResource PanelBrush}"
+                            BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1"
+                            IsVisible="{Binding Diagnostics.HasAmbiguous}">
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="AMBIGUOUS MAPPINGS - CHECK THE CHOSEN SENSOR" Classes="label"
+                                       Foreground="{DynamicResource WarmBrush}" />
+                            <TextBlock Text="{Binding Diagnostics.AmbiguousSummary}"
+                                       Classes="micro" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Padding="12,9"
+                            Background="{DynamicResource PanelBrush}"
+                            BorderBrush="{DynamicResource EdgeBrush}" BorderThickness="1">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="CANONICAL METRIC MAPPING" Classes="label"
+                                       Foreground="{DynamicResource AccentBrush}" />
+                            <ItemsControl ItemsSource="{Binding Diagnostics.Mappings}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:MappingRow">
+                                        <Grid ColumnDefinitions="230,74,300,*" Margin="0,1">
+                                            <TextBlock Grid.Column="0" Text="{Binding Metric}"
+                                                       FontSize="10.5"
+                                                       Foreground="{DynamicResource TextMidBrush}" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Tag}"
+                                                       FontSize="8.5" LetterSpacing="1"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource WarmBrush}" />
+                                            <TextBlock Grid.Column="2" Text="{Binding Source}"
+                                                       Classes="num" FontSize="10.5"
+                                                       TextTrimming="CharacterEllipsis" Margin="0,0,14,0" />
+                                            <TextBlock Grid.Column="3" Text="{Binding Detail}"
+                                                       FontSize="9.5"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Foreground="{DynamicResource TextFaintBrush}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding Diagnostics.Groups}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:DiagnosticsGroup">
+                                <Border Margin="0,0,0,10" Padding="12,10"
+                                        Background="{DynamicResource PanelBrush}"
+                                        BorderBrush="{DynamicResource EdgeBrush}"
+                                        BorderThickness="1">
+                                    <StackPanel Spacing="7">
+                                        <Grid ColumnDefinitions="Auto,Auto,*">
+                                            <TextBlock Grid.Column="0" Text="{Binding Header}"
+                                                       FontSize="11" FontWeight="SemiBold" LetterSpacing="2"
+                                                       Foreground="{DynamicResource TextBrightBrush}" />
+                                            <Border Grid.Column="1" Margin="10,0,0,0" Padding="5,1"
+                                                    BorderBrush="{DynamicResource EdgeStrongBrush}"
+                                                    BorderThickness="1">
+                                                <TextBlock Text="{Binding Kind}" Classes="micro" />
+                                            </Border>
+                                            <TextBlock Grid.Column="2" Text="{Binding Identifier}"
+                                                       Classes="micro" Margin="12,0,0,0"
+                                                       VerticalAlignment="Center" />
+                                        </Grid>
+
+                                        <ItemsControl ItemsSource="{Binding Rows}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:DiagnosticsRow">
+                                                    <Grid ColumnDefinitions="100,215,95,55,190,*" Margin="0,1">
+                                                        <TextBlock Grid.Column="0" Text="{Binding Kind}"
+                                                                   FontSize="9.5"
+                                                                   Foreground="{DynamicResource TextFaintBrush}" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding Name}"
+                                                                   FontSize="10.5"
+                                                                   Foreground="{DynamicResource TextMidBrush}" />
+                                                        <TextBlock Grid.Column="2" Text="{Binding Value}"
+                                                                   Classes="num" FontSize="10.5"
+                                                                   HorizontalAlignment="Right" Margin="0,0,16,0" />
+                                                        <TextBlock Grid.Column="3" Text="{Binding RoleTag}"
+                                                                   FontSize="8.5" LetterSpacing="1"
+                                                                   VerticalAlignment="Center"
+                                                                   Foreground="{DynamicResource WarmBrush}" />
+                                                        <TextBlock Grid.Column="4" Text="{Binding Identifier}"
+                                                                   FontSize="9"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   Margin="0,0,14,0"
+                                                                   Foreground="{DynamicResource TextFaintBrush}" />
+                                                        <TextBlock Grid.Column="5" Text="{Binding MappedTo}"
+                                                                   FontSize="9.5" LetterSpacing="0.5"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   Foreground="{DynamicResource AccentBrush}" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Panel>
+</Window>
