@@ -26,7 +26,10 @@ public partial class App : Application
 
             _viewModel = new MainViewModel(config, store);
 
+            var args = desktop.Args ?? Array.Empty<string>();
             var window = new MainWindow { DataContext = _viewModel };
+            if (!args.Contains("--screenshot", StringComparer.OrdinalIgnoreCase))
+                WindowPlacement.Attach(window);
             if (config.StartMinimized)
                 window.WindowState = Avalonia.Controls.WindowState.Minimized;
 
@@ -39,8 +42,6 @@ public partial class App : Application
                 Log.Info("Shutdown requested");
                 _viewModel?.Dispose();
             };
-
-            var args = desktop.Args ?? Array.Empty<string>();
 
             // Support aid: land straight on the raw sensor listing.
             if (args.Contains("--diagnostics", StringComparer.OrdinalIgnoreCase))

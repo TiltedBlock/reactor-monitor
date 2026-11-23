@@ -20,6 +20,12 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     private readonly LibreHardwareSource _source;
     private readonly TelemetryService _service;
 
+    private readonly WindowsSessionClock _clock = new();
+    private readonly DispatcherTimer _sessionTimer = new() { Interval = TimeSpan.FromSeconds(1) };
+    private TimeSpan? _previousSleep;
+    private double? _previousGraphTime;
+    private readonly double _gapSeconds;
+
     private TelemetryFrame? _frame;
     private string? _fault;
 
@@ -27,6 +33,9 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     {
         _config = config;
         _store = store;
+        Timeline = new GraphTimeline(config.HistorySeconds, Math.Max(0.3, config.PollIntervalMs / 1000.0));
+        _gapSeconds = Math.Max(2.5, config.PollIntervalMs * 0.003);
+        _sessionTimer.Tick += (_, _) => UpdateClock();
 
         Cpu = new CpuModuleViewModel(config);
         Gpu = new GpuModuleViewModel(config);
@@ -53,6 +62,7 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         ElevateCommand = new RelayCommand(RestartElevated);
     }
 
+    public GraphTimeline Timeline { get; }
     public CpuModuleViewModel Cpu { get; }
     public GpuModuleViewModel Gpu { get; }
     public SystemBandViewModel System { get; }
@@ -67,10 +77,8 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
 
     public void Start()
     {
-        var capacity = _processor.History.Capacity;
-        Cpu.SetHistoryCapacity(capacity);
-        Gpu.SetHistoryCapacity(capacity);
-        System.SetHistoryCapacity(capacity);
+        UpdateClock();
+        _sessionTimer.Start();
         _service.Start();
     }
 
@@ -93,15 +101,31 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
             RaiseAll();
         });
 
-    private void OnFrameProduced(TelemetryFrame frame) =>
+    private void OnFrameProduced(TelemetryFrame frame)
+    {
+        var time = _clock.Read();
         Dispatcher.UIThread.Post(() =>
         {
             _frame = frame;
+            double seconds = time.Elapsed.TotalSeconds;
+            bool gap = seconds - _previousGraphTime > _gapSeconds ||
+                       (time.Sleep - _previousSleep)?.TotalMilliseconds > 100;
+            _previousGraphTime = seconds;
+            _previousSleep = time.Sleep;
+
+            var readings = frame.Snapshot;
+            Timeline.Append(new GraphSample(seconds,
+                readings.Get(MetricId.CpuLoad), readings.Get(MetricId.CpuTemperature),
+                readings.Get(MetricId.GpuLoad), readings.Get(MetricId.GpuTemperature),
+                frame.Derived.ComponentPower, gap));
+
             Cpu.Update(frame);
             Gpu.Update(frame);
             System.Update(frame);
             RaiseAll();
         });
+
+    }
 
     private void OnFailed(Exception ex) =>
         Dispatcher.UIThread.Post(() =>
@@ -126,7 +150,18 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
 
     public IBrush StatusBrush => _fault is not null ? Theme.Alert : Theme.ForState(State);
 
-    public string SessionTime => ValueFormat.Duration(_frame?.Session.Duration ?? TimeSpan.Zero);
+    private (TimeSpan Elapsed, TimeSpan? Awake, TimeSpan? Sleep) _runtime;
+    public string SessionTime => ValueFormat.Duration(_runtime.Elapsed);
+    public string AwakeTime => _runtime.Awake is { } awake ? ValueFormat.Duration(awake) : ValueFormat.Missing;
+    public string SleepTime => _runtime.Sleep is { } sleep ? ValueFormat.Duration(sleep) : ValueFormat.Missing;
+
+    private void UpdateClock()
+    {
+        _runtime = _clock.Read();
+        Raise(nameof(SessionTime));
+        Raise(nameof(AwakeTime));
+        Raise(nameof(SleepTime));
+    }
 
     public string SampleCount => (_frame?.Session.SampleCount ?? 0).ToString("N0", CultureInfo.InvariantCulture);
 
@@ -255,6 +290,8 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
     private void ResetSession()
     {
         _processor.ResetSession();
+        Timeline.Clear();
+        _previousGraphTime = null;
         Log.Info("Session statistics reset");
     }
 
@@ -280,5 +317,9 @@ public sealed class MainViewModel : ViewModelBase, IDisposable
         }
     }
 
-    public void Dispose() => _service.Dispose();
+    public void Dispose()
+    {
+        _sessionTimer.Stop();
+        _service.Dispose();
+    }
 }

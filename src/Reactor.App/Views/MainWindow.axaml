@@ -114,7 +114,7 @@
                     <StackPanel Grid.Column="4" Orientation="Horizontal"
                                 VerticalAlignment="Center" Spacing="16">
                         <StackPanel Orientation="Horizontal" Spacing="7">
-                            <TextBlock Text="SESSION" Classes="label" VerticalAlignment="Center" />
+                            <TextBlock Text="OPEN" Classes="label" VerticalAlignment="Center" />
                             <TextBlock Text="{Binding SessionTime}" Classes="num"
                                        FontSize="13" VerticalAlignment="Center" />
                         </StackPanel>
@@ -125,8 +125,9 @@
                                        FontSize="13" VerticalAlignment="Center" />
                         </StackPanel>
                         <Rectangle Width="1" Height="14" Fill="{DynamicResource EdgeBrush}" />
-                        <TextBlock Text="{Binding IntervalLabel}" Classes="micro" VerticalAlignment="Center" />
-                        <TextBlock Text="{Binding UnresolvedSummary}" Classes="micro" VerticalAlignment="Center" />
+                        <TextBlock Classes="label" VerticalAlignment="Center" Text="{Binding AwakeTime, StringFormat='AWAKE {0}'}" />
+                        <TextBlock Classes="label" VerticalAlignment="Center" Text="{Binding SleepTime, StringFormat='SLEEP {0}'}"
+                                   ToolTip.Tip="Windows sleep and hibernation since REACTOR opened." />
                     </StackPanel>
                 </Grid>
             </Border>
@@ -274,25 +275,24 @@
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="16,0,0,0">
                                         <Rectangle Width="9" Height="2" VerticalAlignment="Center"
                                                    Fill="{DynamicResource WarmBrush}" />
-                                        <TextBlock Text="TEMP 20-100 °C" Classes="micro" />
+                                        <TextBlock Text="TEMPERATURE" Classes="micro" Foreground="{DynamicResource TextDimBrush}" />
                                     </StackPanel>
-                                    <TextBlock Grid.Column="3" Text="HISTORY" Classes="micro" />
+                                    <TextBlock Grid.Column="3" Text="SCROLL TO REVIEW · DOUBLE-CLICK FOR LIVE" Classes="micro" Foreground="{DynamicResource TextDimBrush}" />
                                 </Grid>
 
                                 <Rectangle Grid.Row="1" Height="1" Fill="{DynamicResource HairlineBrush}" />
 
                                 <c:TelemetryGraph Grid.Row="2" Margin="0,0,0,0"
-                                                  Capacity="{Binding Cpu.HistoryCapacity}"
-                                                  Primary="{Binding Cpu.LoadHistory}"
+                                                  Timeline="{Binding Timeline}" PrimaryChannel="CpuLoad"
                                                   PrimaryMinimum="0" PrimaryMaximum="100"
-                                                  Secondary="{Binding Cpu.TempHistory}"
+                                                  SecondaryChannel="CpuTemperature" SecondaryUnit="{Binding Cpu.TempUnit}"
                                                   SecondaryMinimum="20" SecondaryMaximum="100"
                                                   PrimaryStroke="{DynamicResource AccentBrush}"
                                                   PrimaryFill="{DynamicResource AccentWashBrush}"
                                                   SecondaryStroke="{DynamicResource WarmBrush}"
                                                   GridBrush="{DynamicResource HairlineBrush}"
                                                   ScaleUnit="%"
-                                                  ScaleBrush="{DynamicResource TextFaintBrush}"
+                                                  ScaleBrush="{DynamicResource TextMidBrush}"
                                                   ScaleFontFamily="{DynamicResource NumericFont}" />
                             </Grid>
                         </Border>
@@ -417,25 +417,24 @@
                                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" Margin="16,0,0,0">
                                         <Rectangle Width="9" Height="2" VerticalAlignment="Center"
                                                    Fill="{DynamicResource WarmBrush}" />
-                                        <TextBlock Text="TEMP 20-100 °C" Classes="micro" />
+                                        <TextBlock Text="TEMPERATURE" Classes="micro" Foreground="{DynamicResource TextDimBrush}" />
                                     </StackPanel>
-                                    <TextBlock Grid.Column="3" Text="HISTORY" Classes="micro" />
+                                    <TextBlock Grid.Column="3" Text="SCROLL TO REVIEW · DOUBLE-CLICK FOR LIVE" Classes="micro" Foreground="{DynamicResource TextDimBrush}" />
                                 </Grid>
 
                                 <Rectangle Grid.Row="1" Height="1" Fill="{DynamicResource HairlineBrush}" />
 
                                 <c:TelemetryGraph Grid.Row="2" Margin="0,0,0,0"
-                                                  Capacity="{Binding Gpu.HistoryCapacity}"
-                                                  Primary="{Binding Gpu.LoadHistory}"
+                                                  Timeline="{Binding Timeline}" PrimaryChannel="GpuLoad"
                                                   PrimaryMinimum="0" PrimaryMaximum="100"
-                                                  Secondary="{Binding Gpu.TempHistory}"
+                                                  SecondaryChannel="GpuTemperature" SecondaryUnit="{Binding Gpu.TempUnit}"
                                                   SecondaryMinimum="20" SecondaryMaximum="100"
                                                   PrimaryStroke="{DynamicResource AccentBrush}"
                                                   PrimaryFill="{DynamicResource AccentWashBrush}"
                                                   SecondaryStroke="{DynamicResource WarmBrush}"
                                                   GridBrush="{DynamicResource HairlineBrush}"
                                                   ScaleUnit="%"
-                                                  ScaleBrush="{DynamicResource TextFaintBrush}"
+                                                  ScaleBrush="{DynamicResource TextMidBrush}"
                                                   ScaleFontFamily="{DynamicResource NumericFont}" />
                             </Grid>
                         </Border>
@@ -448,7 +447,7 @@
                  ============================================================ -->
             <c:ModulePanel Grid.Row="4" Margin="10,10,10,0"
                            Designation="POWER"
-                           Subtitle="{Binding System.PowerHistoryCaption}"
+                           Subtitle="CPU + GPU PACKAGE POWER"
                            Accent="{DynamicResource AccentBrush}">
                 <Grid ColumnDefinitions="Auto,1,Auto,1,Auto,1,*" Height="76">
 
@@ -486,8 +485,7 @@
                             BorderBrush="{DynamicResource HairlineBrush}"
                             BorderThickness="1">
                         <c:TelemetryGraph Margin="1"
-                                          Capacity="{Binding System.HistoryCapacity}"
-                                          Primary="{Binding System.PowerHistory}"
+                                          Timeline="{Binding Timeline}" PrimaryChannel="TotalPower"
                                           PrimaryMinimum="0" PrimaryMaximum="50"
                                           AutoScalePrimary="True"
                                           GridRows="3" GridColumns="12"
@@ -495,7 +493,7 @@
                                           PrimaryFill="{DynamicResource AccentWashBrush}"
                                           GridBrush="{DynamicResource HairlineBrush}"
                                           ScaleUnit="W"
-                                          ScaleBrush="{DynamicResource TextFaintBrush}"
+                                          ScaleBrush="{DynamicResource TextMidBrush}"
                                           ScaleFontFamily="{DynamicResource NumericFont}" />
                     </Border>
                 </Grid>

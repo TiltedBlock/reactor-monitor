@@ -53,6 +53,7 @@ public partial class MainWindow : Window
             case Key.Escape:
                 vm.IsDiagnosticsOpen = false;
                 vm.IsSettingsOpen = false;
+                vm.Timeline.GoLive();
                 break;
             case Key.F11:
                 ToggleMaximize();

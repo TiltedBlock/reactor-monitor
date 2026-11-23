@@ -138,6 +138,21 @@ names.
 Adding support for a new naming scheme means adding one pattern to
 `SensorRules` — no changes anywhere else.
 
+## Everyday use
+
+REACTOR remembers its window size and position on close. If that location is
+off screen at the next launch, it moves the window into a visible work area.
+
+Scroll over a graph to review up to 30 minutes of in-memory history. CPU, GPU
+and power share the same viewport. Hold Shift to scroll a full window at a time.
+Hover for elapsed time and sample values.
+Double-click a graph or press Escape to return to live. The numeric readouts
+remain live, and unsampled periods appear as gaps.
+
+OPEN is time since launch. AWAKE excludes Windows sleep and hibernation,
+and SLEEP is the difference. These timers do not depend on sensor polling.
+RESET clears graph history and measurement statistics; the launch timers continue.
+
 ## Derived values
 
 Everything below is modelled, not measured, and is labelled `EST` in the UI.
